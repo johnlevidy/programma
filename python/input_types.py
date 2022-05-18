@@ -15,3 +15,4 @@ class Operation:
 @dataclass
 class Employee:
     name: str
+    id: int
