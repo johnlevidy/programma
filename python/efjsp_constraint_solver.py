@@ -92,25 +92,44 @@ def get_valid_move(task_graph, assignments):
     node_to_move, data = random.choice(list(task_graph.nodes(data=True)))
     print("Moving node: " + node_to_move)
     deps = set(data['transitive_dependencies'])
-    print(f"Deps: {deps}")
-    valid_moves = [] # List of ('Name': position<int>) pairs
+    valid_moves = set()
+    may_place_on_end = True
     for employee, tasks in assignments.items():
         tmp = deps.intersection(tasks)
         for i, task in enumerate(tasks):
+            # cannot put this after somnething which i'm a dep of
             if not any(tmp):
-                valid_moves.append((employee, i)) 
-            tmp.discard(task)
+                valid_moves.add((employee, i))
+            tmp.discard(task) 
+            if node_to_move in task_graph.nodes[task]['transitive_dependencies']:
+                may_place_on_end = False 
+                break
+        if not any(tmp) and may_place_on_end:
+            valid_moves.add((employee, i + 1))
+        
     print(valid_moves)
+    valid_moves.remove(data['assignment_pointer'])
+    valid_moves.discard((data['assignment_pointer'][0], data['assignment_pointer'][1] + 1)) # equivalent to above
+    chosen_move = random.choice(list(valid_moves))
+    print(f"Selected: {chosen_move} among {valid_moves}")
+    new_assignments = assignments
+    # mark old position for deletion
+    new_assignments[data['assignment_pointer'][0]][data['assignment_pointer'][1]] = None
+    new_assignments[chosen_move[0]].insert(chosen_move[1], node_to_move)
+    new_assignments[data['assignment_pointer'][0]].remove(None)
+    print("New assignments: ")
+    print(new_assignments)
 
 def tabu_search(task_graph, operations, employees, last_task):
     best_completion_time = None
-    for i in range(0, 1000):
+    for i in range(0, 100):
         assignments = generate_random_solution(task_graph, operations, employees)
         add_assignments_to_graph(task_graph, assignments)
         newtime = completion_time(task_graph, assignments, last_task)
         if not best_completion_time or newtime < best_completion_time:
             best_completion_time = newtime
             best_assignment = assignments
+    add_assignments_to_graph(task_graph, best_assignment)
     return best_assignment, best_completion_time
 
 def main(args):
