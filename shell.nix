@@ -3,4 +3,5 @@ with import <nixpkgs> {};
 ortools
 dataclasses-json
 networkx
+pytest
 numpy])).env

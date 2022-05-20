@@ -1,0 +1,48 @@
+{
+  "operations": [
+    {
+      "name": "0",
+      "duration": 2,
+      "deps": [],
+      "job": "Job1"
+    },
+    {
+      "name": "1",
+      "duration": 2,
+      "deps": [],
+      "job": "Job1"
+    },
+    {
+      "name": "2",
+      "duration": 1,
+      "deps": [],
+      "job": "Job1"
+    },
+    {
+      "name": "3",
+      "duration": 3,
+      "deps": ["0"],
+      "job": "Job1"
+    },
+    {
+      "name": "4",
+      "duration": 4,
+      "deps": ["1", "2"],
+      "job": "Job1"
+    },
+    {
+      "name": "5",
+      "duration": 1,
+      "deps": ["3", "4"],
+      "job": "Job1"
+    }
+  ],
+  "employees": [
+    {
+      "name": "John"
+    },
+    {
+      "name": "Frank"
+    }
+  ]
+}
