@@ -88,6 +88,36 @@ class TabuGraph:
                     valid_moves.add((n, (assignment_pointer, (employee, i + 1))))
         return valid_moves
 
+    # TODO: create class Assignment and Move
+
+
+    def _internal_apply_move(self, node, remove, add):
+        # mark old one for deletion first
+        same_task_list = remove[0] == add[0]
+        # if in the same list and index diff is 1, this move doesn't do anything
+        if same_task_list:
+            if abs(remove[1] - add[1]) <= 1:
+                return (node, (remove, add))
+            popped = self.assignments[remove[0]].pop(remove[1])
+            assert(node == popped)
+            self.assignment_pointers[node] = add
+            if remove[1] > add[1]:
+                self.assignments[add[0]].insert(add[1], node)
+                return (node, (add, (remove[0], remove[1] + 1)))
+            if remove[1] < add[1]:
+                self.assignments[add[0]].insert(add[1] - 1, node)
+                return (node, ((add[0], add[1] - 1), remove))
+        else:
+            popped = self.assignments[remove[0]].pop(remove[1])
+            assert(node == popped)
+            self.assignments[add[0]].insert(add[1], node)
+            return (node, (add, remove))
+
+    # make sure you update assignment pointers
+    # returns the move that reverses this change
+    def apply_move(self, node, move): # Move is a tuple of assignment pointers, one to remove, one to place (('John', 2) -> ('Frank', 3))
+        return self._internal_apply_move(node, move[0], move[1])
+
 def build_graph(operations: list[Operation]):
     g = networkx.DiGraph()
     for operation in operations:

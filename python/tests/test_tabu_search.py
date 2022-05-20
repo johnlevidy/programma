@@ -1,4 +1,5 @@
 import unittest
+import copy
 import pprint
 from tabu_search.input_types import *
 from tabu_search.types import build_graph
@@ -38,7 +39,19 @@ class GraphUtilTest(unittest.TestCase):
         self.assertEqual(graph.assignment_aware_transitive_deps, \
             {'A': {'B', 'F', 'E', 'C', 'D'}, 'B': {'D'}, 'C': {'B', 'D', 'F', 'E'}, 'D': set(), 'E': {'D'}, 'F': {'E', 'D'}})
         pp = pprint.PrettyPrinter(indent=2)
-        print()
-        print()
-        pp.pprint(graph.assignments)
-        pp.pprint(graph.get_valid_moves())
+
+        assignments_before = copy.deepcopy(graph.assignments)
+        assignment_pointers_before = copy.deepcopy(graph.assignment_pointers)
+
+        print("Attempting to apply all moves and make sure they are reversible")
+        print(assignments_before)
+        print(assignment_pointers_before)
+        for node, move in graph.get_valid_moves():
+            print(f"Applying move: {node}, {move}")
+            reverse = graph.apply_move(node, move)
+            print(graph.assignments)
+            print(f"Reverse: {reverse}")
+            graph.apply_move(reverse[0], reverse[1])
+            print(graph.assignments)
+            self.assertEqual(assignments_before, graph.assignments)
+            self.assertEqual(assignment_pointers_before, graph.assignment_pointers)
